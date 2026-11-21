@@ -10,14 +10,27 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: dac-central-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   quality-gate:
     name: Mermaid Syntax, Managed Blocks & Provenance Gate
     runs-on: ubuntu-latest
+    outputs:
+      head_sha: ${{ steps.provenance.outputs.head_sha }}
+      source_sha: ${{ steps.provenance.outputs.source_sha }}
+      agentic_review: ${{ steps.provenance.outputs.agentic_review }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
+          ref: >-
+            ${{ (github.event_name == 'pull_request' &&
+                 github.event.pull_request.head.repo.full_name == github.repository &&
+                 github.head_ref == 'dac-sync/grid-telemetry-service' &&
+                 github.event.pull_request.head.sha) || github.sha }}
           persist-credentials: false
 
       - name: Setup Node.js 22
@@ -27,3 +40,119 @@ jobs:
 
       - name: Run Central Docs Quality & Mermaid Gate
         run: node scripts/validate-central-docs.mjs
+
+      - name: Test the Copilot proposal verifier
+        run: node --test test/agent-proposal.test.mjs
+
+      - name: Verify source provenance and prepare the agent evidence
+        id: provenance
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.head.ref == 'dac-sync/grid-telemetry-service' &&
+          github.actor == github.repository_owner &&
+          github.triggering_actor == github.repository_owner
+        env:
+          REVIEWED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$REVIEWED_HEAD" ]; then
+            echo "::error::The docs checkout does not match the reviewed PR revision."
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/dac-evidence"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const product = 'products/grid-telemetry-service';
+          const provenance = JSON.parse(fs.readFileSync(`${product}/dac-provenance.json`, 'utf8'));
+          if (provenance.sourceRepo !== 'gitpavleenbali/dac-workload-modernization' ||
+              !/^[a-f0-9]{40}$/.test(provenance.sourceCommit) ||
+              !/^[a-f0-9]{64}$/.test(provenance.semanticHash)) {
+            throw new Error('The synchronized guides must point to an exact workload commit and semantic hash.');
+          }
+          const guides = ['architecture.md', 'admin-guide.md', 'user-guide.md', 'contributor-guide.md'];
+          const marker = `source="${provenance.sourceRepo}@${provenance.sourceCommit}" irHash="${provenance.semanticHash.slice(0, 12)}"`;
+          let cluster;
+          for (const file of guides) {
+            const markdown = fs.readFileSync(`${product}/${file}`, 'utf8');
+            const blocks = [...markdown.matchAll(/^<!-- BEGIN DAC:[\w-]+ ([^\r\n]+) -->\r?\n([\s\S]*?)^<!-- END DAC:[\w-]+ -->/gm)];
+            if (!blocks.length || blocks.some(block => block[1] !== marker)) {
+              throw new Error(`${file}: managed blocks do not match the source provenance.`);
+            }
+            if (file === 'architecture.md') {
+              const matches = blocks.flatMap(block =>
+                [...block[2].matchAll(/^\| `([a-z0-9-]+)` \| Azure Kubernetes Service \(AKS\) \|/gm)]);
+              if (matches.length === 1) cluster = matches[0][1];
+            }
+          }
+          const headSha = process.env.REVIEWED_HEAD;
+          if (!/^[a-f0-9]{40}$/.test(headSha)) throw new Error('Expected an exact central PR head SHA.');
+          const sourceSha = provenance.sourceCommit;
+          const optedIn = provenance.agenticReview === true;
+          if (optedIn && (provenance.hostingModel !== 'aks-containerized' || !/^[a-z0-9-]{3,63}$/.test(cluster))) {
+            throw new Error('An agentic review requires AKS hosting and exactly one valid cluster name in the generated inventory.');
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `head_sha=${headSha}\nsource_sha=${sourceSha}\nagentic_review=${optedIn}\n`);
+          if (optedIn) {
+            fs.writeFileSync(path.join(process.env.RUNNER_TEMP, 'dac-evidence', 'facts.json'),
+              JSON.stringify({ headSha, sourceSha, cluster }));
+            fs.writeFileSync(path.join(process.env.RUNNER_TEMP, 'dac-evidence', 'brief.md'),
+              `# Central architecture proposal\n\nDeclared transition: Azure VM to AKS.\nAKS cluster: ${cluster}\nSource commit: ${sourceSha}\n`);
+          }
+          NODE
+
+      - name: Share verified central docs evidence
+        if: steps.provenance.outputs.agentic_review == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dac-evidence-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/dac-evidence/
+          if-no-files-found: error
+          retention-days: 7
+
+  agentic-review:
+    name: Option 2 / Central docs Copilot proposal
+    needs: quality-gate
+    if: >-
+      needs.quality-gate.outputs.agentic_review == 'true' &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.head_ref == 'dac-sync/grid-telemetry-service' &&
+      github.actor == github.repository_owner && github.triggering_actor == github.repository_owner
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/dac-agentic-review.lock.yml
+    with:
+      scope: central
+      head_sha: ${{ needs.quality-gate.outputs.head_sha }}
+      source_sha: ${{ needs.quality-gate.outputs.source_sha }}
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+
+  verify-handoff:
+    name: Confirm the central Copilot proposal exists
+    needs: [quality-gate, agentic-review]
+    if: >-
+      !cancelled() && needs.quality-gate.result == 'success' &&
+      needs.quality-gate.outputs.agentic_review == 'true'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require a successful agent stage
+        env:
+          AGENT_RESULT: ${{ needs.agentic-review.result }}
+        run: |
+          if [ "$AGENT_RESULT" != success ]; then
+            echo "::error::The central Copilot proposal did not complete ($AGENT_RESULT). See the agent job."
+            exit 1
+          fi
+      - name: Require the verified patch from this run
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dac-central-architecture-proposal-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/verified-proposal
+      - name: Confirm the patch is not empty
+        run: test -s "$RUNNER_TEMP/verified-proposal/architecture.patch"
