@@ -1,6 +1,6 @@
 # Enterprise Platform Documentation Hub (`dac-central-platform-docs`)
 
-Centralized, governed Docs-as-Code repository for Cloud & Landing Zone workloads. Each product folder under [`products/`](./products/) maintains four audience-tailored guides synchronized from application and Infrastructure-as-Code (IaC) repositories across **GitHub** and **Azure DevOps**:
+This GitHub docs hub shows how one workload's infrastructure and deployment changes reach its central documentation. The demo compares declared VM hosting with an AKS proposal, not a live Azure deployment. Each product folder under [`products/`](./products/) has four guides:
 
 1. **`architecture.md`** — Landing Zone network topology & runtime Mermaid diagrams, subnet CIDR matrix, Azure SKU inventory, RBAC/Private Link flows, and human-authored **Architectural Decision Records (ADRs)**.
 2. **`admin-guide.md`** — Day-2 SRE & operations runbooks, access procedures, observability, and incident escalation windows.
@@ -17,6 +17,13 @@ Centralized, governed Docs-as-Code repository for Cloud & Landing Zone workloads
 
 ## Governance & Non-Destructive Sync Model
 
-- **Machine-Managed Facts (`<!-- BEGIN DAC:... -->`):** Resource inventories, Mermaid topology diagrams, subnet CIDRs, RBAC matrices, and operational CLI commands are updated via automated Pull Requests whenever source IaC or deployment manifests change.
+- **Machine-Managed Facts (`<!-- BEGIN DAC:... -->`):** The DAC Translator puts diagrams, inventories, and operational references in a GitHub pull request when the presenter requests a sync.
 - **Human-Curated Sections:** Business context, ADRs, maintenance freeze policies, and escalation contacts live outside managed markers and are **preserved byte-for-byte** by deterministic sync gates.
-- **Automated Quality Gate ([`validate-docs.yml`](./.github/workflows/validate-docs.yml)):** Every PR validates Mermaid diagram syntax, relative Markdown links, balanced managed-block tags, and `dac-provenance.json` commit traceability before `CODEOWNERS` merge to `main`.
+- **Automated Quality Gate ([`validate-docs.yml`](./.github/workflows/validate-docs.yml)):** Checks Mermaid structure, relative Markdown links, managed-block markers, and provenance fields. A maintainer still reviews and merges; `CODEOWNERS` identifies the reviewers.
+
+## GitHub demo
+
+1. **Option 1 — DAC Translator.** Compare the [VM baseline](./products/grid-telemetry-service/architecture.md#azure-landing-zone--network-topology) with [central docs PR #1](https://github.com/gitpavleenbali/dac-central-platform-docs/pull/1/files), generated from the [source VM-to-AKS migration](https://github.com/gitpavleenbali/dac-workload-modernization/pull/1/files). The existing ADRs and policies stay as written.
+2. **Option 2 — Copilot cloud agent.** Open [issue #2](https://github.com/gitpavleenbali/dac-central-platform-docs/issues/2). Show its linked Copilot draft PR if it has already been assigned. To start a fresh session, use the issue's **Assign to Copilot** action with the `dac-central-curator` profile and base `main`. Copilot proposes a separate ADR with review questions; it does not edit the rolling docs PR.
+
+The optional **[Copilot ADR Review Actions workflow](https://github.com/gitpavleenbali/dac-central-platform-docs/actions/workflows/dac-agentic-review.lock.yml)** is the automated flavor of Option 2. It reads the evidence and proposes a single comment on issue #2. It requires a [Copilot inference credential](https://github.github.com/gh-aw/reference/auth/#copilot_github_token) on this personal repository. It is not needed for either live demo above. To rebuild the workflow after editing its Markdown definition, run `gh aw compile dac-agentic-review` using `gh-aw` v1.2.2.
