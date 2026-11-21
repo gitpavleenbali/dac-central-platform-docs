@@ -1,0 +1,27 @@
+name: Validate Central Platform Documentation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    name: Mermaid Syntax, Managed Blocks & Provenance Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run Central Docs Quality & Mermaid Gate
+        run: node scripts/validate-central-docs.mjs
