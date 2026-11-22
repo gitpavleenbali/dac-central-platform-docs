@@ -2,7 +2,7 @@
 
 This repository contains the shared catalog and audience guides for the Grid Telemetry example. The default branch documents the virtual machine (VM) baseline. The proposed move to Azure Kubernetes Service (AKS) is in [central docs PR #1](https://github.com/gitpavleenbali/dac-central-platform-docs/pull/1/files), not a live Azure deployment.
 
-**[Open the interactive Doc as Code workshop](https://gitpavleenbali.github.io/dac-workload-modernization/#why).** It includes two comics, presentation-ready slides, zoomable diagrams, and [before/after guides](https://gitpavleenbali.github.io/dac-workload-modernization/#file-comparison). The [Evidence & Links tour](https://gitpavleenbali.github.io/dac-workload-modernization/#evidence-tour) connects the examples to the public GitHub records.
+**[Open the interactive Doc as Code workshop](https://gitpavleenbali.github.io/dac-workload-modernization/).** The [workload-to-platform overview](https://gitpavleenbali.github.io/dac-workload-modernization/#cross-team-flow) shows how one change reaches two review teams. The Why, What, and [How](https://gitpavleenbali.github.io/dac-workload-modernization/#how-story) comics lead into zoomable diagrams, [before/after guides](https://gitpavleenbali.github.io/dac-workload-modernization/#file-comparison), and a short [slide on commit IDs and architecture hashes](https://gitpavleenbali.github.io/dac-workload-modernization/#fingerprints). The [Evidence & Links tour](https://gitpavleenbali.github.io/dac-workload-modernization/#evidence-tour) points to the GitHub records.
 
 ## Documented service and landing zone catalog
 
