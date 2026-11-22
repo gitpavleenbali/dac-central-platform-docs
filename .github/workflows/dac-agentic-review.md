@@ -13,18 +13,35 @@ on:
       source_sha:
         type: string
         required: true
-    secrets:
-      COPILOT_GITHUB_TOKEN:
-        required: true
   reaction: none
   status-comment: false
 permissions:
   actions: read
   contents: read
-engine: copilot
+  id-token: write
+model: gpt-5.4-mini
+engine:
+  id: copilot
+  auth:
+    type: github-oidc
+    provider: azure
+    azure-tenant-id: f1755a38-88fd-47a4-a2e9-5c2019dc2535
+    azure-client-id: 8616f592-3dde-4d01-b7a9-20e2b65b53c7
+  env:
+    COPILOT_PROVIDER_BASE_URL: https://akodemo-foundry-vgnyffewtcqu6.openai.azure.com/openai/v1
+    COPILOT_PROVIDER_MODEL_ID: gpt-5.4-mini
+    COPILOT_PROVIDER_WIRE_API: responses
+sandbox:
+  agent:
+    id: awf
+    model-fallback: false
 inlined-imports: true
 checkout: false
-network: defaults
+network:
+  allowed:
+    - defaults
+    - akodemo-foundry-vgnyffewtcqu6.openai.azure.com
+    - login.microsoftonline.com
 max-turns: 12
 timeout-minutes: 8
 tools:

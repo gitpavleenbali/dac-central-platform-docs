@@ -123,14 +123,13 @@ jobs:
     permissions:
       actions: read
       contents: read
+      id-token: write
       pull-requests: read
     uses: ./.github/workflows/dac-agentic-review.lock.yml
     with:
       scope: central
       head_sha: ${{ needs.quality-gate.outputs.head_sha }}
       source_sha: ${{ needs.quality-gate.outputs.source_sha }}
-    secrets:
-      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
 
   verify-handoff:
     name: Confirm the central Copilot proposal exists
