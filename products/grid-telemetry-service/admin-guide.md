@@ -1,8 +1,10 @@
 # Grid Telemetry & Dispatch Service — Administrator & SRE Operations Guide
 
+These commands are reference procedures for the declared architecture, not workshop steps to run against a live service. The [workshop comparison](https://gitpavleenbali.github.io/dac-workload-modernization/#file-comparison) shows how the example changes from checking the VM service with `systemctl` to checking Kubernetes with `kubectl`.
+
 ## Active Operational Posture
 
-<!-- BEGIN DAC:admin-ops-posture source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:admin-ops-posture source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 - **Host Management & Administrative Access:** Workload runs as `systemd` unit `grid-telemetry.service` on Linux VM `vm-grid-telemetry-01` (`Standard_D4s_v5`). Direct public SSH is blocked; administrators connect through Azure Bastion `bas-grid-ops`.
 - **Traffic & Availability Posture:** Layer-4 TCP distribution via `lb-grid-telemetry` (`Azure Standard Load Balancer`). OS patching requires coordinated maintenance windows.
 - **Secrets & Identity Management:** VM System-Assigned Managed Identity retrieves runtime secrets from `kv-grid-telemetry` over Private Endpoint.
@@ -12,7 +14,7 @@
 
 ## Day-2 Operational Runbook
 
-<!-- BEGIN DAC:admin-day2-runbook source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:admin-day2-runbook source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 ```bash
 # 1. Connect to Linux VM (vm-grid-telemetry-01) via Azure Bastion
 VM_ID=$(az vm show -g rg-grid-telemetry-prod -n vm-grid-telemetry-01 --query id -o tsv)
@@ -29,7 +31,7 @@ sudo systemctl restart grid-telemetry.service && curl -fsS http://localhost:8080
 
 ## Monitored Infrastructure Inventory
 
-<!-- BEGIN DAC:admin-observability-table source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:admin-observability-table source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 | Azure Resource Name | Architectural Type | Category | SKU / Sizing | Subnet / Scope | Key Capabilities |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `bas-grid-ops` | Azure Bastion | `security` | `Standard` | `AzureBastionSubnet` | Standard |

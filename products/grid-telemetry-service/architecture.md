@@ -2,9 +2,11 @@
 
 > **Centralized Platform Documentation** • Managed sections are synchronized from source IaC via Docs-as-Code PRs; Architectural Decision Records (ADRs) below remain human-curated by @gitpavleenbali.
 
+This guide describes an intended design at the recorded [workload revision](./dac-provenance.json). Diagram paths are not proof of deployment, network reachability, or monitoring. The [workshop topology comparison](https://gitpavleenbali.github.io/dac-workload-modernization/#topology-comparison) separates the VM baseline from the proposed AKS design.
+
 ## Executive Topology Summary
 
-<!-- BEGIN DAC:arch-executive-summary source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:arch-executive-summary source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 | Architecture Dimension | Current State (Synced from Source IaC) |
 | :--- | :--- |
 | **Product / Service** | **Grid Telemetry & Dispatch Service** (`grid-telemetry-service`) |
@@ -13,12 +15,12 @@
 | **Spoke VNet & Hub Peering** | `vnet-grid-prod` (10.40.0.0/16) peered to `vnet-hub-connectivity-eu` |
 | **Ingress Entrypoint** | `lb-grid-telemetry` (Azure Standard Load Balancer, `Standard`) |
 | **Stateful & Messaging Tier** | `psql-grid-telemetry` (GP_Standard_D2ds_v5) |
-| **Source Provenance** | `gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7` • IR Hash `e8147f08f46c` |
+| **Source Provenance** | `gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261` • IR Hash `e8147f08f46c` |
 <!-- END DAC:arch-executive-summary -->
 
 ## Azure Landing Zone & Network Topology
 
-<!-- BEGIN DAC:arch-topology-diagram source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:arch-topology-diagram source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 ```mermaid
 flowchart TB
   ext_clients(["External Consumers & Grid Sensors"])
@@ -68,7 +70,7 @@ flowchart TB
 
 ## Runtime Traffic & Delivery Architecture
 
-<!-- BEGIN DAC:arch-runtime-diagram source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:arch-runtime-diagram source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 ```mermaid
 flowchart LR
   subgraph sg_cicd["Engineering & CI/CD Delivery"]
@@ -92,7 +94,7 @@ flowchart LR
 
 ## Virtual Network & Subnet Allocation
 
-<!-- BEGIN DAC:arch-network-table source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:arch-network-table source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 | Subnet Name | CIDR Prefix | Attached NSG | Service Delegation | Hosted / Connected Resources |
 | :--- | :--- | :--- | :--- | :--- |
 | `snet-vm-app` | `10.40.1.0/24` | `nsg-vm-grid-app` | `None` | `lb-grid-telemetry`, `vm-grid-telemetry-01` |
@@ -102,7 +104,7 @@ flowchart LR
 
 ## Azure Resource & SKU Inventory
 
-<!-- BEGIN DAC:arch-resource-inventory source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:arch-resource-inventory source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 | Azure Resource Name | Architectural Type | Category | SKU / Sizing | Subnet / Scope | Key Capabilities |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `bas-grid-ops` | Azure Bastion | `security` | `Standard` | `AzureBastionSubnet` | Standard |
@@ -115,7 +117,7 @@ flowchart LR
 
 ## Identity, RBAC & Private Connectivity Matrix
 
-<!-- BEGIN DAC:arch-security-rbac source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:arch-security-rbac source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 | Source Principal / Origin | Target Resource | Access Type | Mechanism / Protocol |
 | :--- | :--- | :--- | :--- |
 | `vm-grid-telemetry-01` | `psql-grid-telemetry` | Private Link | `TLS/TCP` |

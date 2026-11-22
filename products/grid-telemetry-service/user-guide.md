@@ -1,9 +1,11 @@
 # Grid Telemetry & Dispatch Service — Service Consumer & User Guide
 
+The tables describe the interface declared at the [source revision](./dac-provenance.json). Endpoints and service-level objectives are not evidence of a reachable service or measured availability. The [workshop's file comparison](https://gitpavleenbali.github.io/dac-workload-modernization/#file-comparison) shows these declarations before and after the proposed change.
+
 ## Service Overview & Access Posture
 
-<!-- BEGIN DAC:user-service-overview source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
-| Consumer Property | Active Production Configuration |
+<!-- BEGIN DAC:user-service-overview source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
+| Consumer Property | Declared Configuration |
 | :--- | :--- |
 | **Service Name** | **Grid Telemetry & Dispatch Service** |
 | **Gateway / Entrypoint** | `lb-grid-telemetry` (Azure Standard Load Balancer) |
@@ -14,7 +16,7 @@
 
 ## API Endpoints Catalog
 
-<!-- BEGIN DAC:user-endpoints-catalog source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:user-endpoints-catalog source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 | HTTP Method | Endpoint Path | Capability Summary |
 | :--- | :--- | :--- |
 | `GET` | `/healthz` | Liveness and readiness probe returning active runtime mode and buffer depth |

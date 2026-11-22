@@ -1,8 +1,10 @@
 # Grid Telemetry & Dispatch Service — Engineering Contributor Guide
 
+The delivery diagram describes the intended design. This repository's [validation workflow](../../.github/workflows/validate-docs.yml) checks proposed documentation; it does not deploy the app. The [workshop's developer tools section](https://gitpavleenbali.github.io/dac-workload-modernization/#delivery) covers local generation and the opt-in central sync.
+
 ## Build, Release & Infrastructure Delivery Flow
 
-<!-- BEGIN DAC:contrib-delivery-flow source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:contrib-delivery-flow source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 ```mermaid
 flowchart LR
   subgraph sg_cicd["Engineering & CI/CD Delivery"]
@@ -27,23 +29,23 @@ flowchart LR
 1. **Application & OpenAPI Changes:** Update `src/` and `openapi/openapi.yaml`; run `npm test`.
 2. **VM Packaging:** Update `deploy/systemd/grid-telemetry.service` or `deploy/cloud-init/cloud-init.yaml` when runtime flags change.
 3. **IaC Changes:** Update `infra/terraform/` (and `infra/bicep/`); validate with `terraform validate`.
-4. **Automated Docs-as-Code Sync:** Run `npx dac-translator verify` locally or allow CI/CD to propose synchronized documentation updates.
+4. **Doc as Code Refresh:** In the workload checkout, `npm run dac:render` updates the marked sections and `npm run dac:verify` checks freshness. Central publication is a separate, opt-in GitHub workflow.
 <!-- END DAC:contrib-delivery-flow -->
 
 ## Repository & Docs-as-Code Contracts
 
-<!-- BEGIN DAC:contrib-repo-contracts source="gitpavleenbali/dac-workload-modernization@70ac7177abe6360d4f1b606913c840111c708fb7" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:contrib-repo-contracts source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
 | Artifact Path | Responsibility | Consumed By |
 | :--- | :--- | :--- |
 | `infra/terraform/*.tf` | Primary Azure Landing Zone infrastructure state | Terraform CI + `dac-translator` HCL Extractor |
 | `infra/bicep/main.bicep` | Multi-team Bicep reference template | Bicep Validator + `dac-translator` Bicep Extractor |
 | `deploy/systemd/*.service` | Workload runtime & scaling specification | Release Pipeline + `dac-translator` Workload Extractor |
 | `openapi/openapi.yaml` | REST API contract & health probe endpoints | API Consumers + `user-guide.md` Renderer |
-| `dac-manifest.json` | Product ownership & Central Docs path mapping | `dac-translator` & GitHub Cloud Agent |
+| `dac-manifest.json` | Product ownership & central docs path mapping | `dac-translator` |
 <!-- END DAC:contrib-repo-contracts -->
 
 ## Code Review Standards, Branching Policy & Definition of Done
 
-- **Protected `main` Branch:** All application and IaC modifications require pull request approval from `CODEOWNERS`, green unit tests, and passing `terraform validate`.
+- **Review policy:** Route application and infrastructure changes to the listed `CODEOWNERS` reviewers, with passing unit tests and Terraform validation. Enforcement depends on the repository's configured rules.
 - **Zero Static Secrets:** Never commit connection strings, SSH keys, or SAS tokens; bind permissions through Managed Identity RBAC in Terraform/Bicep.
 - **Documentation Accountability:** Review automated Docs-as-Code PRs alongside architectural changes and append human rationale to `architecture.md` ADRs whenever hosting or stateful services change.
