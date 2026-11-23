@@ -3,12 +3,12 @@
   "serviceId": "grid-telemetry-service",
   "serviceName": "Grid Telemetry & Dispatch Service",
   "landingZone": "alz-energy-ops-prod",
-  "hostingModel": "virtual-machines",
-  "hostingLabel": "Azure Virtual Machines (IaaS)",
+  "hostingModel": "aks-containerized",
+  "hostingLabel": "Azure Kubernetes Service (Cloud-Native Containers)",
   "sourceRepo": "gitpavleenbali/dac-workload-modernization",
-  "sourceCommit": "9e573d092dd96a87c7ffd631218d41d0717e7261",
-  "semanticHash": "e8147f08f46cc10149f29cf314e212a23c0d36efc3432c0a23454d01ce0ff9f1",
-  "nodeCount": 6,
+  "sourceCommit": "c710df3ba7f7faacfcbbacf47fdcb6852238c969",
+  "semanticHash": "9d095541532117cbba4325eff2e893af5c66e1b50e09fda69386c64e20ece85b",
+  "nodeCount": 10,
   "subnetCount": 3,
-  "syncedAt": "2026-11-22T10:12:31.628Z"
+  "syncedAt": "2026-11-23T08:30:30.658Z"
 }
