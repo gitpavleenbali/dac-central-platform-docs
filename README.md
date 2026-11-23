@@ -8,10 +8,10 @@ This repository contains the shared catalog and guides for the Grid Telemetry ex
 
 The catalog reflects source declarations at the revision shown. It is not a live inventory.
 
-<!-- BEGIN DAC:catalog-index source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:catalog-index source="gitpavleenbali/dac-workload-modernization@c710df3ba7f7faacfcbbacf47fdcb6852238c969" irHash="9d0955415321" -->
 | Product / Service | Landing Zone | Declared Hosting Model | Region | Owner | Source Provenance | Guides |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Grid Telemetry & Dispatch Service** | `alz-energy-ops-prod` | **Azure Virtual Machines (IaaS)** | `westeurope` | `@gitpavleenbali` | `gitpavleenbali/dac-workload-modernization@9e573d0` (`e8147f08`) | [Architecture](./products/grid-telemetry-service/architecture.md) · [Admin](./products/grid-telemetry-service/admin-guide.md) · [User](./products/grid-telemetry-service/user-guide.md) · [Contributor](./products/grid-telemetry-service/contributor-guide.md) |
+| **Grid Telemetry & Dispatch Service** | `alz-energy-ops-prod` | **Azure Kubernetes Service (Cloud-Native Containers)** | `westeurope` | `@gitpavleenbali` | `gitpavleenbali/dac-workload-modernization@c710df3` (`9d095541`) | [Architecture](./products/grid-telemetry-service/architecture.md) · [Admin](./products/grid-telemetry-service/admin-guide.md) · [User](./products/grid-telemetry-service/user-guide.md) · [Contributor](./products/grid-telemetry-service/contributor-guide.md) |
 <!-- END DAC:catalog-index -->
 
 ## What changes and who reviews it

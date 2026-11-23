@@ -4,24 +4,27 @@ The tables describe the interface declared at the [source revision](./dac-proven
 
 ## Service Overview & Access Posture
 
-<!-- BEGIN DAC:user-service-overview source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:user-service-overview source="gitpavleenbali/dac-workload-modernization@c710df3ba7f7faacfcbbacf47fdcb6852238c969" irHash="9d0955415321" -->
 | Consumer Property | Declared Configuration |
 | :--- | :--- |
 | **Service Name** | **Grid Telemetry & Dispatch Service** |
-| **Gateway / Entrypoint** | `lb-grid-telemetry` (Azure Standard Load Balancer) |
-| **Runtime Scaling & Availability** | Single-Region VM Host (Standard_D4s_v5) • Target SLO 99.95% |
-| **Async Event Buffering** | Not enabled (synchronous database write path) |
-| **Exposure & Security** | TCP 8080 via Azure Standard Load Balancer |
+| **Gateway / Entrypoint** | `agw-grid-waf` (Azure Application Gateway (WAF v2)) |
+| **Runtime Scaling & Availability** | Kubernetes Rolling Updates (4 (HPA 4-24 pods)) • Target SLO 99.95% |
+| **Async Event Buffering** | Enabled via Azure Service Bus (`sb-grid-telemetry`) |
+| **Hot-State Read Cache** | Sub-millisecond substation state cache via `redis-grid-hotstate` (Premium) |
+| **Exposure & Security** | HTTPS telemetry.grid.internal (azure-application-gateway) |
 <!-- END DAC:user-service-overview -->
 
 ## API Endpoints Catalog
 
-<!-- BEGIN DAC:user-endpoints-catalog source="gitpavleenbali/dac-workload-modernization@9e573d092dd96a87c7ffd631218d41d0717e7261" irHash="e8147f08f46c" -->
+<!-- BEGIN DAC:user-endpoints-catalog source="gitpavleenbali/dac-workload-modernization@c710df3ba7f7faacfcbbacf47fdcb6852238c969" irHash="9d0955415321" -->
 | HTTP Method | Endpoint Path | Capability Summary |
 | :--- | :--- | :--- |
-| `GET` | `/healthz` | Liveness and readiness probe returning active runtime mode and buffer depth |
+| `GET` | `/healthz` | Kubernetes liveness and readiness probe returning pod runtime mode and buffer depth |
 | `GET` | `/v1/grid/status` | Retrieve current regional grid nominal frequency, active frequency-deviation alerts, and latest substation reading |
-| `POST` | `/v1/telemetry` | Idempotently ingest substation voltage and frequency telemetry reading |
+| `POST` | `/v1/telemetry` | Idempotently ingest single substation voltage and frequency telemetry reading |
+| `POST` | `/v1/telemetry/batch` | Asynchronously enqueue high-frequency substation telemetry batch via Azure Service Bus Premium |
+| `POST` | `/v1/dispatch/curtailment` | Issue automated substation load-curtailment dispatch command during grid frequency excursion |
 | `GET` | `/v1/telemetry/recent` | List most recent 25 telemetry readings in the active window |
 <!-- END DAC:user-endpoints-catalog -->
 
